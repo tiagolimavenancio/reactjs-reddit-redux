@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import "./TopicsScreen.css";
 import * as TopicsActions from "../store/topics/actions";
 import * as TopicsSelectors from "../store/topics/reducer";
 import ListView from "../components/ListView";
+import ListRow from "../components/ListRow";
+import "./TopicsScreen.css";
 
-function TopicsScreen({ rowsById, rowsIdArray, dispatch }) {
+function TopicsScreen({ rowsById, rowsIdArray, selectedIdsMap, dispatch }) {
   useEffect(() => {
     dispatch(TopicsActions.fetchTopics());
   }, [dispatch]);
@@ -14,13 +15,18 @@ function TopicsScreen({ rowsById, rowsIdArray, dispatch }) {
     return <p>Loading...</p>;
   };
 
-  const renderRow = (row) => {
+  const renderRow = (rowId, row) => {
+    const selected = selectedIdsMap[rowId];
     return (
-      <div>
-        <p>{row}</p>
-        {/* <p>{row.description}</p> */}
-      </div>
+      <ListRow rowId={rowId} selected={selected} onClick={onRowClick}>
+        <h3>{row.title}</h3>
+        <p>{row.description}</p>
+      </ListRow>
     );
+  };
+
+  const onRowClick = (rowId) => {
+    dispatch(TopicsActions.selectTopic(rowId));
   };
 
   if (!rowsById) {
@@ -31,7 +37,7 @@ function TopicsScreen({ rowsById, rowsIdArray, dispatch }) {
     <div className="TopicsScreen">
       <ListView
         rowsIdArray={rowsIdArray}
-        rowsById={rowsIdArray}
+        rowsById={rowsById}
         renderRow={renderRow}
       />
     </div>
@@ -42,6 +48,7 @@ const mapStateToProps = (state) => {
   return {
     rowsById: TopicsSelectors.getTopicsByUrl(state),
     rowsIdArray: TopicsSelectors.getTopicsUrlArray(state),
+    selectedIdsMap: TopicsSelectors.getSelectedTopicUrlsMap(state),
   };
 };
 
