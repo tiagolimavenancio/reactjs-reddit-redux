@@ -4,7 +4,7 @@ import * as types from "./actionTypes";
 
 const initialState = Immutable({
   topicsByUrl: undefined,
-  selectedTopicsUrls: [],
+  selectedTopicUrls: [],
   selectionFinalized: false,
 });
 
@@ -16,7 +16,7 @@ export default function reduce(state = initialState, action = {}) {
       });
     case types.TOPICS_SELECTED:
       return state.merge({
-        selectedTopicsUrls: action.selectedTopicsUrls,
+        selectedTopicUrls: action.selectedTopicUrls,
       });
     case types.TOPIC_SELECTION_FINALIZED:
       return state.merge({
@@ -27,20 +27,21 @@ export default function reduce(state = initialState, action = {}) {
   }
 }
 
-export function getTopicsByUrl(state) {
-  return state.topics.topicsByUrl;
-}
-
-export function getTopicsUrlArray(state) {
-  return _.keys(state.topics.topicsByUrl);
+export function getTopics(state) {
+  const topicsByUrl = state.topics.topicsByUrl;
+  const topicsUrlArray = _.keys(topicsByUrl);
+  return [topicsByUrl, topicsUrlArray];
 }
 
 export function getSelectedTopicUrls(state) {
-  return state.topics.selectedTopicsUrls;
+  return state.topics.selectedTopicUrls;
 }
 
-export function getSelectedTopicUrlsMap(state) {
-  return _.keyBy(state.topics.selectedTopicsUrls);
+export function getSelectedTopicsByUrl(state) {
+  return _.mapValues(
+    _.keyBy(state.topics.selectedTopicUrls),
+    (topicUrl) => state.topics.topicsByUrl[topicUrl]
+  );
 }
 
 export function isTopicSelectionValid(state) {

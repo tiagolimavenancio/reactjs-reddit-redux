@@ -8,7 +8,7 @@ import "./App.css";
 function App({ isSelectionFinalized }) {
   return (
     <div className="App">
-      {isSelectionFinalized ? <TopicsScreen /> : <PostsScreen />}
+      {!isSelectionFinalized ? <TopicsScreen /> : <PostsScreen />}
     </div>
   );
 }

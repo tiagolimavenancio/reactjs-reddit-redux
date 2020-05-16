@@ -6,7 +6,13 @@ import ListView from "../components/ListView";
 import ListRow from "../components/ListRow";
 import "./TopicsScreen.css";
 
-function TopicsScreen({ rowsById, rowsIdArray, selectedIdsMap, dispatch }) {
+function TopicsScreen({
+  topicsByUrl,
+  topicsUrlArray,
+  selectedTopicsByUrl,
+  canFinalizeSelection,
+  dispatch,
+}) {
   useEffect(() => {
     dispatch(TopicsActions.fetchTopics());
   }, [dispatch]);
@@ -15,40 +21,52 @@ function TopicsScreen({ rowsById, rowsIdArray, selectedIdsMap, dispatch }) {
     return <p>Loading...</p>;
   };
 
-  const renderRow = (rowId, row) => {
-    const selected = selectedIdsMap[rowId];
+  const renderRow = (topicUrl, topic) => {
+    const selected = selectedTopicsByUrl[topicUrl];
     return (
-      <ListRow rowId={rowId} selected={selected} onClick={onRowClick}>
-        <h3>{row.title}</h3>
-        <p>{row.description}</p>
+      <ListRow rowId={topicUrl} selected={selected} onClick={onRowClick}>
+        <h3>{topic.title}</h3>
+        <p>{topic.description}</p>
       </ListRow>
     );
   };
 
-  const onRowClick = (rowId) => {
-    dispatch(TopicsActions.selectTopic(rowId));
+  const onRowClick = (topicUrl) => {
+    dispatch(TopicsActions.selectTopic(topicUrl));
   };
 
-  if (!rowsById) {
+  const onNextScreenClick = () => {
+    dispatch(TopicsActions.finalizeTopicSelection());
+  };
+
+  if (!topicsByUrl) {
     return renderLoading();
   }
 
   return (
     <div className="TopicsScreen">
+      <h3>Choose 3 topics of interest</h3>
       <ListView
-        rowsIdArray={rowsIdArray}
-        rowsById={rowsById}
+        rowsIdArray={topicsUrlArray}
+        rowsById={topicsByUrl}
         renderRow={renderRow}
       />
+      {!canFinalizeSelection ? (
+        false
+      ) : (
+        <button className="NextScreen" onClick={onNextScreenClick} />
+      )}
     </div>
   );
 }
 
 const mapStateToProps = (state) => {
+  const [topicsByUrl, topicsUrlArray] = TopicsSelectors.getTopics(state);
   return {
-    rowsById: TopicsSelectors.getTopicsByUrl(state),
-    rowsIdArray: TopicsSelectors.getTopicsUrlArray(state),
-    selectedIdsMap: TopicsSelectors.getSelectedTopicUrlsMap(state),
+    topicsByUrl,
+    topicsUrlArray,
+    selectedTopicsByUrl: TopicsSelectors.getSelectedTopicsByUrl(state),
+    canFinalizeSelection: TopicsSelectors.isTopicSelectionValid(state),
   };
 };
 

@@ -4,7 +4,9 @@ function ListRow({ selected, rowId, onClick, children }) {
   const backgroundColor = selected ? "#c0f0ff" : "#fff";
 
   const onSelected = () => {
-    onClick(rowId);
+    if (typeof onClick === "function") {
+      onClick(rowId);
+    }
   };
 
   return (
